@@ -1,16 +1,41 @@
-import { Image, StyleSheet, TextInput, Button, ScrollView, View } from 'react-native';
+import { Image, StyleSheet, TextInput, TouchableOpacity, Text, Alert, View } from 'react-native';
 import React from 'react';
 import Card from '@/components/Card'
 
 
-export default function SearchContainer () {
+export default function SearchContainer() {
     const [text, onChangeText] = React.useState('Enter player name');
-    const [number, onChangeNumber] = React.useState('');
     const [placeholder, setPlaceholder] = React.useState('Search Players');
+
+    const handleSearch = () => {
+        const playerName = text.trim()
+            if (playerName === '') {
+                Alert.alert("Error", "Please  enter a player name");
+                return;
+            }
+        
+        fetch(`https://api-nba-v1.p.rapidapi.com/players/statistics?search=${playerName}`, {
+            method: 'GET',
+            headers: {
+                'X-RapidAPI-Key': 'd39c03c1famsh4f2d2b921bc2319p1d2ac1jsn3b63058a49a5',
+                'X-RapidAPI-Host': 'api-nba-v1.p.rapidapi.com'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            Alert.alert("Data fetched", JSON.stringify(data));
+        })
+        .catch(error => {
+            console.error(error);
+            Alert.alert("Error", "Failed to fetch data");
+        });
+    }
 
     return (
     
-        <View>    
+        <View>
+    
             <Image 
                 style={styles.logo}
                 source={require('@/assets/images/logo.png')}
@@ -19,19 +44,17 @@ export default function SearchContainer () {
             <Card>
                 <TextInput
                     style={styles.input}
-                    onChangeText={onChangeNumber}
-                    value={number}
+                    onChangeText={onChangeText}
+                    value={text}
                     placeholder={placeholder}
-                    keyboardType="numeric"
                     onFocus={() => setPlaceholder('')}
                     onBlur={() => setPlaceholder('Search Players')}
                 />
             </Card>
             <View style={styles.buttonContainer}>
-                <Button
-                    title="Go"
-                    color="#0f872b"
-                />
+            <TouchableOpacity style={styles.button} onPress={handleSearch}>
+                <Text style={styles.buttonText}>Go</Text>
+            </TouchableOpacity>
             </View>
         </View>    
     )
@@ -39,6 +62,7 @@ export default function SearchContainer () {
 
 const styles = StyleSheet.create({
     
+
     card: {
         backgroundColor: '#fff',
         borderRadius: 8,
@@ -59,14 +83,19 @@ const styles = StyleSheet.create({
       },
     buttonContainer: {
         marginTop: 10,
-        width: 150,
         justifyContent: 'center',
         alignItems: 'center',
 
       },
     button: {
-        marginTop: 10,
-        width: 'auto',
-
-      },
-    })
+        backgroundColor: '#0f872b',
+        paddingVertical: 10,
+        paddingHorizontal: 30,
+        borderRadius: 5,
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 24,
+        fontWeight: 'bold',
+    }
+})
