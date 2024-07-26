@@ -8,13 +8,20 @@ export default function SearchContainer() {
     const [placeholder, setPlaceholder] = React.useState('Search Players');
 
     const handleSearch = () => {
-        const playerName = text.trim()
-            if (playerName === '') {
-                Alert.alert("Error", "Please  enter a player name");
+        const name = text.trim()
+            if (name === '') {
+                Alert.alert("Error", "Please enter a player name");
                 return;
             }
         
-        fetch(`https://api-nba-v1.p.rapidapi.com/players/statistics?search=${playerName}`, {
+        let url = `https://api-nba-v1.p.rapidapi.com/players?`;
+        const names = name.split(' ');
+        if (names.length === 1) {
+            url += `name=${names[0]}`;
+        } else if (names.length > 1) {
+            url += `name=${names[1]}`;
+            }
+        fetch(url, {
             method: 'GET',
             headers: {
                 'X-RapidAPI-Key': 'd39c03c1famsh4f2d2b921bc2319p1d2ac1jsn3b63058a49a5',
